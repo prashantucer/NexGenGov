@@ -14,8 +14,10 @@ backend/nexgengov_ai.db
 backend/.env
 .env
 *.env
-README.md
+*.md
+**/*.md
 *.pdf
+
 
 
 # Node.js
