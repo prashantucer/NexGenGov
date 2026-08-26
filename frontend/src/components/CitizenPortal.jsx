@@ -398,34 +398,36 @@ const CitizenPortal = ({ incidents = [], onSubmitSuccess, onBackToHome, onAddNot
   // 5. Naini / Prayagraj Live Demonstration Quick Seeds
   const triggerDemo = (type) => {
     stopCamera();
+    
+    let category = 'Road Damage';
+    let desc = 'नैनी स्कूल के पास मुख्य सड़क धंस गई है और बड़ा गड्ढा हो गया है। नीचे पानी की पाइपलाइन की वजह से डामर बार-बार उखड़ रहा है।';
+    let demoImg = 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=400&q=80';
+    let box = [120, 150, 320, 450];
+    let latVal = 25.3890;
+    let lngVal = 81.8650;
+    
+    if (type === 'naini-water') {
+      category = 'Water Supply & Sewerage';
+      desc = 'नैनी एडीए कॉलोनी रोड पर मुख्य भूमिगत जल पाइपलाइन (UPJN-04) में भारी रिसाव हो रहा है और सड़क पर जलभराव हो गया है।';
+      demoImg = 'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=400&q=80';
+      box = [110, 90, 360, 430];
+      latVal = 25.3890;
+      lngVal = 81.8650;
+    } else if (type === 'naini-waste') {
+      category = 'Waste Management';
+      desc = 'नैनी इंडस्ट्रियल एरिया फेज-1 मोड़ पर भारी मात्रा में कचरे का ढेर और प्लास्टिक अपशिष्ट जमा है जिससे बदबू आ रही है।';
+      demoImg = 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=400&q=80';
+      box = [180, 50, 410, 580];
+      latVal = 25.3930;
+      lngVal = 81.8650;
+    }
+    
+    // Set image immediately so the scan animation renders on top of it
+    setMediaUrl(demoImg);
     setScanning(true);
     setScanResult(null);
     
     setTimeout(() => {
-      let category = 'Road Damage';
-      let desc = 'नैनी स्कूल के पास मुख्य सड़क धंस गई है और बड़ा गड्ढा हो गया है। नीचे पानी की पाइपलाइन की वजह से डामर बार-बार उखड़ रहा है।';
-      let demoImg = 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=400&q=80';
-      let box = [120, 150, 320, 450];
-      let latVal = 25.3890;
-      let lngVal = 81.8650;
-      
-      if (type === 'naini-water') {
-        category = 'Water Supply & Sewerage';
-        desc = 'नैनी एडीए कॉलोनी रोड पर मुख्य भूमिगत जल पाइपलाइन (UPJN-04) में भारी रिसाव हो रहा है और सड़क पर जलभराव हो गया है।';
-        demoImg = 'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=400&q=80';
-        box = [110, 90, 360, 430];
-        latVal = 25.3890;
-        lngVal = 81.8650;
-      } else if (type === 'naini-waste') {
-        category = 'Waste Management';
-        desc = 'नैनी इंडस्ट्रियल एरिया फेज-1 मोड़ पर भारी मात्रा में कचरे का ढेर और प्लास्टिक अपशिष्ट जमा है जिससे बदबू आ रही है।';
-        demoImg = 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=400&q=80';
-        box = [180, 50, 410, 580];
-        latVal = 25.3930;
-        lngVal = 81.8650;
-      }
-      
-      setMediaUrl(demoImg);
       setLat(latVal);
       setLng(lngVal);
       setDescription(desc);
@@ -438,7 +440,7 @@ const CitizenPortal = ({ incidents = [], onSubmitSuccess, onBackToHome, onAddNot
         boxes: [{ box, label: `${category} (96%)`, confidence: 0.96 }] 
       });
       setScanning(false);
-    }, 450);
+    }, 1200); // 1.2 seconds of holographic scan visualization
   };
 
   const handleSubmit = async (e) => {
