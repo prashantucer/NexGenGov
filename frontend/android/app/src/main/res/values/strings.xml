@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">National Governance Intelligence System</string>
+    <string name="title_activity_main">National Governance Intelligence System</string>
+    <string name="package_name">com.nexgengov.ngis</string>
+    <string name="custom_url_scheme">com.nexgengov.ngis</string>
+</resources>

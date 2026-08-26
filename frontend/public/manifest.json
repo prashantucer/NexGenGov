@@ -1,0 +1,18 @@
+{
+  "short_name": "NGIS",
+  "name": "National Governance Intelligence System - NexGenGov AI",
+  "description": "Autonomous Governance Intelligence Platform for public grievance redressal and spatial analytics.",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#002b49",
+  "display": "standalone",
+  "orientation": "portrait"
+}
