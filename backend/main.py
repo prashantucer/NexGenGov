@@ -9,7 +9,7 @@ from database import init_db, SessionLocal, Incident, Citizen, Department, Task
 from models import IncidentCreate, IncidentResponse, TaskResponse, DashboardStats
 from ai_engine import run_ai_triage, haversine_distance, verify_resolution, analyze_image_content
 
-app = FastAPI(title="NexGenGov AI - Backend Services")
+app = FastAPI(title="NexGenGov - Backend Services")
 
 # Enable CORS for frontend connection
 app.add_middleware(
@@ -47,12 +47,18 @@ def analyze_image_endpoint(payload: ImageAnalysisRequest):
 
 
 def seed_database_data(db):
-    # 1. Seed Departments
+    # 1. Seed All 8 Comprehensive Municipal Departments
     depts = [
         ("Public Works Department", "pwd@gov.in"),
         ("Water Supply & Sewerage Department", "water@gov.in"),
-        ("Municipal Sanitation Department", "sanitation@gov.in")
+        ("Municipal Sanitation Department", "sanitation@gov.in"),
+        ("Electricity & Street Lighting Department", "electricity@gov.in"),
+        ("Horticulture & Urban Parks Department", "horticulture@gov.in"),
+        ("Traffic & Road Safety Department", "traffic@gov.in"),
+        ("Public Health & Vector Control Department", "health@gov.in"),
+        ("Disaster Management & Flood Control", "disaster@gov.in")
     ]
+
     dept_ids = {}
     for name, email in depts:
         existing = db.query(Department).filter(Department.name == name).first()
@@ -132,6 +138,23 @@ def startup_event():
     finally:
         db.close()
 
+@app.get("/api/system-status")
+def get_system_status():
+    """
+    Returns live health, multi-modal vision engine mode (Gemini vs Local Fallback),
+    and spatial GIS readiness.
+    """
+    from ai_engine import gemini_model, gemini_model_name, GEMINI_API_KEY
+    vision_mode = f"Google Gemini {gemini_model_name} (Cloud)" if gemini_model else "Smart Local Deep Learning & Feature Extractor (Offline)"
+    return {
+        "status": "healthy",
+        "platform": "NexGenGov - Autonomous Governance Intelligence Platform",
+        "vision_engine": vision_mode,
+        "api_key_configured": bool(GEMINI_API_KEY),
+        "gis_engine": "Haversine Spatial Proximity & Dynamic Multi-City Corridor Active",
+        "supported_cities": ["Delhi Central", "Prayagraj / Naini", "Dynamic GeoJSON Grid"]
+    }
+
 @app.post("/api/reset")
 def reset_database():
     # Recreate SQLite database schemas to flush all active states
@@ -145,6 +168,7 @@ def reset_database():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database reset error: {str(e)}")
     return {"status": "success", "message": "Database reset and default seeds loaded successfully."}
+
 
 @app.post("/api/incidents", response_model=IncidentResponse)
 def create_incident(incident_data: IncidentCreate, db: Session = Depends(get_db)):

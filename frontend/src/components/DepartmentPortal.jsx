@@ -21,22 +21,25 @@ const DepartmentPortal = ({ incidents, onRefresh, onBackToHome, onAddNotificatio
       return;
     }
     
-    let expectedPasscode = '';
-    if (selectedDept === 'Public Works Department') {
-      expectedPasscode = 'pwd2026';
-    } else if (selectedDept === 'Water Supply & Sewerage Department') {
-      expectedPasscode = 'water2026';
-    } else if (selectedDept === 'Municipal Sanitation Department') {
-      expectedPasscode = 'sanitation2026';
-    }
+    const validPasscodes = {
+      'Public Works Department': 'pwd2026',
+      'Water Supply & Sewerage Department': 'water2026',
+      'Municipal Sanitation Department': 'sanitation2026',
+      'Electricity & Street Lighting Department': 'power2026',
+      'Horticulture & Urban Parks Department': 'parks2026',
+      'Traffic & Road Safety Department': 'traffic2026',
+      'Public Health & Vector Control Department': 'health2026',
+      'Disaster Management & Flood Control': 'disaster2026'
+    };
     
-    if (passcode === expectedPasscode) {
+    if (passcode === validPasscodes[selectedDept] || passcode === 'admin2026' || passcode === '1234') {
       setIsLoggedIn(true);
       setLoginError('');
     } else {
-      setLoginError('गलत पासकोड। / Invalid passcode. (e.g. pwd2026)');
+      setLoginError(`गलत पासकोड। डेमो पासकोड: ${validPasscodes[selectedDept] || 'admin2026'} / 1234`);
     }
   };
+
 
   const handleUpdateStatus = async (taskId, nextStatus, proofImg = null) => {
     setUpdatingTaskId(taskId);
@@ -238,9 +241,14 @@ const DepartmentPortal = ({ incidents, onRefresh, onBackToHome, onAddNotificatio
                 required
               >
                 <option value="">-- विभाग चुनें / Select Department --</option>
-                <option value="Public Works Department">Public Works Department (PWD)</option>
-                <option value="Water Supply & Sewerage Department">Water Supply & Sewerage Department</option>
-                <option value="Municipal Sanitation Department">Municipal Sanitation Department</option>
+                <option value="Public Works Department">Public Works Department (PWD - Roads/Bridges)</option>
+                <option value="Water Supply & Sewerage Department">Water Supply & Sewerage Department (Jal Board)</option>
+                <option value="Municipal Sanitation Department">Municipal Sanitation Department (Swachhata/Waste)</option>
+                <option value="Electricity & Street Lighting Department">Electricity & Street Lighting Department</option>
+                <option value="Horticulture & Urban Parks Department">Horticulture & Urban Parks Department</option>
+                <option value="Traffic & Road Safety Department">Traffic & Road Safety Department</option>
+                <option value="Public Health & Vector Control Department">Public Health & Vector Control Department</option>
+                <option value="Disaster Management & Flood Control">Disaster Management & Flood Control</option>
               </select>
             </div>
 
@@ -249,16 +257,17 @@ const DepartmentPortal = ({ incidents, onRefresh, onBackToHome, onAddNotificatio
               <input 
                 type="password" 
                 className="form-input" 
-                placeholder="Enter passcode (pwd2026 / water2026 / sanitation2026)"
+                placeholder="Enter passcode or use 1234"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 required
               />
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
-                Demo codes: <code>pwd2026</code>, <code>water2026</code>, <code>sanitation2026</code>
+                Quick Demo: Enter code <code>1234</code> or <code>admin2026</code> to log in to any department.
               </span>
             </div>
             {loginError && <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: '10px', fontWeight: 600 }}>{loginError}</div>}
+
 
             <button type="submit" className="btn btn-saffron" style={{ width: '100%', marginTop: '20px' }}>
               लॉग-इन करें / Authenticate Portal

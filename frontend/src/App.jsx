@@ -178,7 +178,7 @@ function App() {
       <header className="main-header" style={{ padding: '12px 40px' }}>
         <div className="header-brand">
           {/* Ashoka Chakra Emblem SVG */}
-          <svg width="54" height="54" viewBox="0 0 100 100" style={{ marginRight: '10px' }}>
+          <svg className="chakra-logo" width="54" height="54" viewBox="0 0 100 100" style={{ marginRight: '10px', transition: 'transform 0.8s ease-in-out' }}>
             <circle cx="50" cy="50" r="48" fill="none" stroke="#FF9933" strokeWidth="2.5" />
             <circle cx="50" cy="50" r="45" fill="none" stroke="#138808" strokeWidth="2.5" />
             <circle cx="50" cy="50" r="42" fill="#FFFFFF" />
@@ -203,7 +203,7 @@ function App() {
               स्वायत्त लोक शिकायत निवारण एवं निगरानी प्रणाली (NGIS)
             </h1>
             <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--secondary-blue)', marginTop: '2px' }}>
-              NexGenGov AI - Autonomous Governance Intelligence Platform
+              NexGenGov - Autonomous Governance Intelligence Platform
             </h1>
             <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '2px', fontWeight: 600 }}>
               National Governance Intelligence System (NGIS) | भारत सरकार / Govt of India
@@ -217,7 +217,7 @@ function App() {
           </div>
           <div style={{ fontSize: '0.68rem', textAlign: 'right', color: 'var(--text-muted)' }}>
             <strong>Helpline / सहायता:</strong><br />
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#DC2626' }}>1800-XXX-XXXX</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#DC2626' }}>1800-123-4567</span>
           </div>
         </div>
       </header>
@@ -236,7 +236,7 @@ function App() {
         <button className={`nav-link-btn ${view === 'department' ? 'active' : ''}`} onClick={() => setView('department')}>
           Department Portal / विभागीय पोर्टल
         </button>
-        <button className="nav-link-btn" onClick={() => alert("Helpline Toll Free: 1800-XXX-XXXX. Address: Autonomous Governance Intelligence Division (NGIS Headquarters), New Delhi.")}>
+        <button className="nav-link-btn" onClick={() => alert("Helpline Toll Free: 1800-123-4567. Address: Autonomous Governance Intelligence Division (NGIS Headquarters), New Delhi.")}>
           Contact Us / संपर्क करें
         </button>
       </div>
@@ -407,6 +407,7 @@ function App() {
 
         {view === 'citizen' && (
           <CitizenPortal 
+            incidents={incidents}
             onSubmitSuccess={fetchDashboardData} 
             onBackToHome={() => setView('hero')} 
             onAddNotification={addNotification}
@@ -504,7 +505,7 @@ function App() {
             Content Owned and Managed by Ministry of Personnel, Public Grievances & Pensions.
           </p>
           <p style={{ opacity: 0.5, fontSize: '0.7rem' }}>
-            © {new Date().getFullYear()} NexGenGov AI. All rights reserved.
+            © {new Date().getFullYear()} NexGenGov. All rights reserved.
           </p>
         </div>
       </footer>

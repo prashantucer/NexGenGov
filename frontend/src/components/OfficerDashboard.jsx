@@ -7,6 +7,31 @@ const OfficerDashboard = ({ incidents = [], stats, hotspots = [], analytics = {}
   const [overlayProofTask, setOverlayProofTask] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard or analytics
 
+  // CSV Export utility
+  const handleExportCSV = () => {
+    if (!incidents || incidents.length === 0) return;
+    const headers = ["Ticket ID", "Category", "Description", "Latitude", "Longitude", "Status", "Priority Score", "Root Cause"];
+    const rows = incidents.map(inc => [
+      inc.id.slice(0, 8),
+      inc.category,
+      inc.description.replace(/\n/g, " "),
+      inc.latitude,
+      inc.longitude,
+      inc.status,
+      inc.priority_score,
+      inc.root_cause_hypothesis || "N/A"
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.map(val => `"${val.toString().replace(/"/g, '""')}"`).join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `NexGenGov_Grievance_Report_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Login credentials states
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
@@ -179,7 +204,7 @@ const OfficerDashboard = ({ incidents = [], stats, hotspots = [], analytics = {}
               </button>
             </div>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Officer Administration Dashboard - NexGenGov AI
+              Officer Administration Dashboard - NexGenGov
             </span>
           </div>
 
@@ -217,12 +242,20 @@ const OfficerDashboard = ({ incidents = [], stats, hotspots = [], analytics = {}
                 <div className="gov-card" style={{ marginTop: '24px' }}>
                   <div className="card-title">
                     <span>शिकायत सूची / INCIDENT INDEX</span>
-                    <button 
-                      onClick={onRefresh} 
-                      style={{ marginLeft: 'auto', padding: '4px 10px', background: '#F0F4F8', border: '1px solid rgba(0,0,0,0.15)', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      Refresh Index
-                    </button>
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={handleExportCSV} 
+                        style={{ padding: '4px 10px', background: 'var(--primary-navy)', color: '#FFF', border: 'none', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        📥 Export CSV
+                      </button>
+                      <button 
+                        onClick={onRefresh} 
+                        style={{ padding: '4px 10px', background: '#F0F4F8', border: '1px solid rgba(0,0,0,0.15)', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Refresh Index
+                      </button>
+                    </div>
                   </div>
                   
                   <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '5px' }}>

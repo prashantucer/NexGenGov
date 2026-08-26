@@ -16,9 +16,10 @@ const MapView = ({
   const correlationLineRef = useRef(null);
   const hotspotsGroupRef = useRef([]);
 
-  // New Delhi default center
-  const defaultCenter = [28.6139, 77.2090];
-  const defaultZoom = 17;
+  // Naini, Prayagraj default center
+  const defaultCenter = [25.3890, 81.8650];
+  const defaultZoom = 16;
+
 
   useEffect(() => {
     // Check if Leaflet L is loaded globally
@@ -52,8 +53,8 @@ const MapView = ({
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Draw Blue Polyline representing the Water Pipeline
-    const pipelineCoords = [
+    // Draw Blue Polylines representing Underground Water Pipelines (Delhi & Naini/Prayagraj)
+    const delhiPipelineCoords = [
       [28.6135, 77.2090],
       [28.6137, 77.2090],
       [28.6139, 77.2090],
@@ -61,15 +62,32 @@ const MapView = ({
       [28.6143, 77.2090]
     ];
     
-    const pipeline = L.polyline(pipelineCoords, {
+    const nainiPipelineCoords = [
+      [25.3850, 81.8650],
+      [25.3870, 81.8650],
+      [25.3890, 81.8650],
+      [25.3910, 81.8650],
+      [25.3930, 81.8650],
+      [25.4120, 81.8650]
+    ];
+    
+    const delhiPipeline = L.polyline(delhiPipelineCoords, {
       color: '#0F52BA',
       weight: 6,
       opacity: 0.85,
       dashArray: '2, 6'
     }).addTo(map);
-    pipeline.bindPopup("Underground Water Main Pipeline (WP-9912)");
+    delhiPipeline.bindPopup("Underground Water Main Pipeline (WP-9912 - Central Corridor)");
 
-    // Draw School Marker (SVG icon)
+    const nainiPipeline = L.polyline(nainiPipelineCoords, {
+      color: '#0F52BA',
+      weight: 6,
+      opacity: 0.85,
+      dashArray: '2, 6'
+    }).addTo(map);
+    nainiPipeline.bindPopup("Underground Water Main Pipeline (UPJN-NAINI-04)");
+
+    // Draw School Markers (SVG icons)
     L.marker([28.6140, 77.2085], {
       icon: L.divIcon({
         html: `
@@ -92,6 +110,30 @@ const MapView = ({
         iconAnchor: [55, 10]
       })
     }).addTo(map).bindPopup("Government Primary School (Central Zone)");
+
+    L.marker([25.3895, 81.8645], {
+      icon: L.divIcon({
+        html: `
+          <div style="
+            background: #002B49; 
+            color: #FF9933; 
+            border: 1.5px solid #FF9933; 
+            border-radius: 4px; 
+            padding: 3px 6px; 
+            font-size: 8px; 
+            font-weight: bold; 
+            white-space: nowrap; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2)
+          ">
+            NAINI PUBLIC SCHOOL
+          </div>
+        `,
+        className: 'custom-school-tag',
+        iconSize: [110, 20],
+        iconAnchor: [55, 10]
+      })
+    }).addTo(map).bindPopup("Naini Public School Zone");
+
 
     // Add click event for Citizen Selection if clickable
     if (clickable) {
