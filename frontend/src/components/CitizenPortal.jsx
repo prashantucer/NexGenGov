@@ -694,6 +694,131 @@ const CitizenPortal = ({ incidents = [], onSubmitSuccess, onBackToHome, onAddNot
             </div>
 
 
+            {/* Interactive Leaflet Map for Citizen */}
+            <div className="form-group" style={{ marginTop: '15px', background: '#F8FAFC', padding: '16px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.06)', marginBottom: '20px' }}>
+              <label className="form-label" style={{ fontSize: '0.9rem', marginBottom: '8px', display: 'block', fontWeight: 700 }}>
+                शिकायत स्थान / Grievance Location Coordinate *
+              </label>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                Drag the marker or click on the map to pin the exact location of the issue.
+              </p>
+
+              {/* Address Search Bar for Geocoding Map Pinning */}
+              <div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text"
+                  className="form-input"
+                  placeholder="खोजें (जैसे Naini Prayagraj या Connaught Place Delhi)"
+                  value={searchAddress}
+                  onChange={(e) => setSearchAddress(e.target.value)}
+                  style={{ fontSize: '0.8rem', padding: '6px 10px', flex: 1, background: '#FFF' }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddressSearch();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddressSearch}
+                  className="btn btn-primary"
+                  style={{ fontSize: '0.75rem', padding: '6px 12px', whiteSpace: 'nowrap' }}
+                  disabled={searchLoading}
+                >
+                  {searchLoading ? 'खोज रहे हैं...' : 'स्थान खोजें / Search'}
+                </button>
+              </div>
+              {searchError && <div style={{ color: '#DC2626', fontSize: '0.7rem', marginBottom: '10px', fontWeight: 600 }}>{searchError}</div>}
+              
+              <div id="citizen-map" style={{ width: '100%', height: '220px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', overflow: 'hidden', position: 'relative', zIndex: 1 }}></div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px', background: '#F1F5F9', padding: '6px 10px', borderRadius: '4px' }}>
+                <span>GPS Coordinates: <strong>{lat.toFixed(5)}, {lng.toFixed(5)}</strong></span>
+                <strong style={{ color: locationFetched ? '#138808' : '#FF9933' }}>
+                  {locationFetched ? 'GPS Pinned / Active' : 'Default Pinned'}
+                </strong>
+              </div>
+
+              {/* Manual Coordinate Inputs */}
+              <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1, minWidth: '130px' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Lat (अक्षांश):</span>
+                  <input 
+                    type="number" 
+                    step="0.00001" 
+                    value={lat} 
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val)) {
+                        setLat(val);
+                        setLocationFetched(true);
+                      }
+                    }} 
+                    style={{ padding: '6px', fontSize: '0.75rem', border: '1px solid #CBD5E1', borderRadius: '4px', width: '100%', background: 'var(--card-bg)', color: 'var(--text-main)' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1, minWidth: '130px' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Lng (रेखांश):</span>
+                  <input 
+                    type="number" 
+                    step="0.00001" 
+                    value={lng} 
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val)) {
+                        setLng(val);
+                        setLocationFetched(true);
+                      }
+                    }} 
+                    style={{ padding: '6px', fontSize: '0.75rem', border: '1px solid #CBD5E1', borderRadius: '4px', width: '100%', background: 'var(--card-bg)', color: 'var(--text-main)' }}
+                  />
+                </div>
+              </div>
+
+              {/* Preset Corridor Selection buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLat(28.6140);
+                    setLng(77.2085);
+                    setLocationFetched(true);
+                  }}
+                  style={{ background: 'rgba(15, 82, 186, 0.08)', border: '1px solid rgba(15, 82, 186, 0.2)', color: 'var(--secondary-blue)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  📍 Delhi (School Corridor)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLat(25.3850);
+                    setLng(81.8650);
+                    setLocationFetched(true);
+                  }}
+                  style={{ background: 'rgba(15, 82, 186, 0.08)', border: '1px solid rgba(15, 82, 186, 0.2)', color: 'var(--secondary-blue)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  📍 Prayagraj (Water Corridor)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition((position) => {
+                        setLat(parseFloat(position.coords.latitude.toFixed(5)));
+                        setLng(parseFloat(position.coords.longitude.toFixed(5)));
+                        setLocationFetched(true);
+                      });
+                    }
+                  }}
+                  style={{ background: 'var(--primary-navy)', border: '1px solid var(--chakra-blue)', color: '#FFF', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  🔄 Auto-Detect GPS
+                </button>
+              </div>
+            </div>
+
+
             {/* Input Mode Selector Toggles */}
             <div style={{ display: 'flex', borderBottom: '1px solid rgba(0,0,0,0.1)', marginBottom: '20px' }}>
               <button
@@ -989,129 +1114,7 @@ const CitizenPortal = ({ incidents = [], onSubmitSuccess, onBackToHome, onAddNot
               `}</style>
             </div>
 
-            {/* Interactive Leaflet Map for Citizen */}
-            <div className="form-group" style={{ marginTop: '15px' }}>
-              <label className="form-label" style={{ fontSize: '0.9rem', marginBottom: '8px', display: 'block' }}>
-                शिकायत स्थान / Grievance Location Coordinate *
-              </label>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Drag the marker or click on the map to pin the exact location of the issue.
-              </p>
 
-              {/* Address Search Bar for Geocoding Map Pinning */}
-              <div style={{ marginBottom: '12px', display: 'flex', gap: '8px' }}>
-                <input 
-                  type="text"
-                  className="form-input"
-                  placeholder="खोजें (जैसे Naini Prayagraj या Connaught Place Delhi)"
-                  value={searchAddress}
-                  onChange={(e) => setSearchAddress(e.target.value)}
-                  style={{ fontSize: '0.8rem', padding: '6px 10px', flex: 1, background: '#FFF' }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddressSearch();
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddressSearch}
-                  className="btn btn-primary"
-                  style={{ fontSize: '0.75rem', padding: '6px 12px', whiteSpace: 'nowrap' }}
-                  disabled={searchLoading}
-                >
-                  {searchLoading ? 'खोज रहे हैं...' : 'स्थान खोजें / Search'}
-                </button>
-              </div>
-              {searchError && <div style={{ color: '#DC2626', fontSize: '0.7rem', marginBottom: '10px', fontWeight: 600 }}>{searchError}</div>}
-              
-              <div id="citizen-map" style={{ width: '100%', height: '220px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', overflow: 'hidden', position: 'relative', zIndex: 1 }}></div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px', background: '#F1F5F9', padding: '6px 10px', borderRadius: '4px' }}>
-                <span>GPS Coordinates: <strong>{lat.toFixed(5)}, {lng.toFixed(5)}</strong></span>
-                <strong style={{ color: locationFetched ? '#138808' : '#FF9933' }}>
-                  {locationFetched ? 'GPS Pinned / Active' : 'Default Pinned'}
-                </strong>
-              </div>
-
-              {/* Manual Coordinate Inputs */}
-              <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1, minWidth: '130px' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Lat (अक्षांश):</span>
-                  <input 
-                    type="number" 
-                    step="0.00001" 
-                    value={lat} 
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      if (!isNaN(val)) {
-                        setLat(val);
-                        setLocationFetched(true);
-                      }
-                    }} 
-                    style={{ padding: '6px', fontSize: '0.75rem', border: '1px solid #CBD5E1', borderRadius: '4px', width: '100%', background: 'var(--card-bg)', color: 'var(--text-main)' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1, minWidth: '130px' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Lng (रेखांश):</span>
-                  <input 
-                    type="number" 
-                    step="0.00001" 
-                    value={lng} 
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      if (!isNaN(val)) {
-                        setLng(val);
-                        setLocationFetched(true);
-                      }
-                    }} 
-                    style={{ padding: '6px', fontSize: '0.75rem', border: '1px solid #CBD5E1', borderRadius: '4px', width: '100%', background: 'var(--card-bg)', color: 'var(--text-main)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Preset Corridor Selection buttons */}
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLat(28.6140);
-                    setLng(77.2085);
-                    setLocationFetched(true);
-                  }}
-                  style={{ background: 'rgba(15, 82, 186, 0.08)', border: '1px solid rgba(15, 82, 186, 0.2)', color: 'var(--secondary-blue)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
-                >
-                  📍 Delhi (School Corridor)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLat(25.3850);
-                    setLng(81.8650);
-                    setLocationFetched(true);
-                  }}
-                  style={{ background: 'rgba(15, 82, 186, 0.08)', border: '1px solid rgba(15, 82, 186, 0.2)', color: 'var(--secondary-blue)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
-                >
-                  📍 Prayagraj (Water Corridor)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition((position) => {
-                        setLat(parseFloat(position.coords.latitude.toFixed(5)));
-                        setLng(parseFloat(position.coords.longitude.toFixed(5)));
-                        setLocationFetched(true);
-                      });
-                    }
-                  }}
-                  style={{ background: 'var(--primary-navy)', border: '1px solid var(--chakra-blue)', color: '#FFF', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', cursor: 'pointer', fontWeight: 600 }}
-                >
-                  🔄 Auto-Detect GPS
-                </button>
-              </div>
-            </div>
 
             {/* Optional Address/Landmark Input */}
             <div className="form-group" style={{ marginTop: '15px' }}>
