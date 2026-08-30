@@ -447,6 +447,17 @@ def update_task_status(task_id: str, payload: TaskStatusUpdate, db: Session = De
         
     return compile_incident_response(incident, db)
 
+@app.get("/")
+@app.get("/health")
+def health_check():
+    """Root health-check endpoint for Render and deployment probes."""
+    return {
+        "status": "healthy",
+        "service": "NexGenGov Autonomous Governance Intelligence API",
+        "version": "1.0.0",
+        "endpoints": ["/api/dashboard", "/api/incidents", "/api/system-status", "/docs"]
+    }
+
 def compile_incident_response(inc: Incident, db: Session) -> IncidentResponse:
     tasks = db.query(Task).filter(Task.incident_id == inc.id).all()
     task_responses = []
@@ -484,3 +495,10 @@ def compile_incident_response(inc: Incident, db: Session) -> IncidentResponse:
         created_at=inc.created_at,
         tasks=task_responses
     )
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+

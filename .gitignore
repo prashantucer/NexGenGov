@@ -14,9 +14,9 @@ backend/nexgengov_ai.db
 backend/.env
 .env
 *.env
-*.md
-**/*.md
-*.pdf
+# Temporary logs
+*.log
+
 
 
 

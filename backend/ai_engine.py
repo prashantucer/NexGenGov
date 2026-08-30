@@ -28,17 +28,18 @@ if GEMINI_API_KEY:
         genai = genai_module
         genai.configure(api_key=GEMINI_API_KEY)
         
-        # Try initializing standard high-speed models in order of latency and deprecation recommendations
+        # Try initializing standard high-speed models in order of latency and availability
         models_to_try = [
-            "gemini-3.5-flash-lite",
-            "gemini-3.5-flash",
-            "gemini-2.5-flash",
-            "gemini-flash-latest"
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-pro"
         ]
         
         for model_name in models_to_try:
             try:
                 gemini_model = genai.GenerativeModel(model_name)
+                # Test with a lightweight ping or assignment
                 gemini_model_name = model_name
                 print(f"AI Engine: Google Gemini {model_name} initialized successfully.")
                 break
