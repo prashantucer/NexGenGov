@@ -28,18 +28,36 @@ if GEMINI_API_KEY:
         genai = genai_module
         genai.configure(api_key=GEMINI_API_KEY)
         
-        # Try initializing standard high-speed models in order of latency and availability
+        # Auto-discover or prioritize latest supported Gemini models
         models_to_try = [
-            "gemini-2.0-flash",
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-2.5-flash",
             "gemini-1.5-flash",
-            "gemini-1.5-flash-8b",
-            "gemini-1.5-pro"
+            "gemini-1.5-pro",
+            "gemini-pro-vision"
         ]
         
+        # Check if list_models is available to dynamically discover active models
+        try:
+            available_models = [
+                m.name.replace("models/", "")
+                for m in genai.list_models()
+                if "generateContent" in m.supported_generation_methods
+            ]
+            if available_models:
+                print(f"AI Engine: Available Gemini models from API: {available_models}")
+                # Place available models matching flash or vision at the top
+                preferred = [m for m in available_models if "flash" in m or "3." in m or "2." in m or "1.5" in m]
+                for p in reversed(preferred):
+                    if p not in models_to_try:
+                        models_to_try.insert(0, p)
+        except Exception as e_list:
+            print(f"AI Engine: Could not list models dynamically: {e_list}")
+
         for model_name in models_to_try:
             try:
                 gemini_model = genai.GenerativeModel(model_name)
-                # Test with a lightweight ping or assignment
                 gemini_model_name = model_name
                 print(f"AI Engine: Google Gemini {model_name} initialized successfully.")
                 break
@@ -212,7 +230,28 @@ Output JSON strictly:
             text_out = text_out.split("```", 1)[1].split("```", 1)[0].strip()
         return json.loads(text_out)
     except Exception as e:
-        print(f"Gemini Fast Vision execution error: {e}")
+        print(f"Gemini Fast Vision execution error with {gemini_model_name}: {e}")
+        # Try falling back to gemini-3.6-flash or other active models dynamically
+        if "404" in str(e) or "not found" in str(e).lower() or "no longer available" in str(e).lower():
+            for fallback_name in ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-flash"]:
+                if fallback_name != gemini_model_name:
+                    try:
+                        print(f"Retrying vision with fallback model {fallback_name}...")
+                        alt_model = genai.GenerativeModel(fallback_name)
+                        response = alt_model.generate_content(
+                            [prompt, fast_img],
+                            generation_config={"temperature": 0.0, "max_output_tokens": 512, "response_mime_type": "application/json"}
+                        )
+                        text_out = response.text.strip()
+                        if "```json" in text_out:
+                            text_out = text_out.split("```json", 1)[1].split("```", 1)[0].strip()
+                        elif "```" in text_out:
+                            text_out = text_out.split("```", 1)[1].split("```", 1)[0].strip()
+                        # Update default model to the working one
+                        gemini_model = alt_model
+                        return json.loads(text_out)
+                    except Exception as alt_err:
+                        print(f"Fallback model {fallback_name} failed: {alt_err}")
         return None
 
 
